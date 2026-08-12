@@ -24,8 +24,9 @@ ENV CODE_SERVER_PORT=8080
 
 WORKDIR /app
 COPY server.js /app/server.js
+COPY router.js /app/router.js
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-EXPOSE 4010 8080
+EXPOSE 80 4010 8080
 CMD ["/app/entrypoint.sh"]
