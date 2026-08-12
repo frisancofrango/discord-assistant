@@ -67,14 +67,24 @@ function extractText(stdout) {
 
 const server = http.createServer((req, res) => {
   const auth = req.headers['authorization'] || '';
+
+  // public: root + health (no token needed)
+  if (req.method === 'GET' && (req.url === '/health' || req.url === '/')) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({
+      healthy: true,
+      service: 'opencode-farm',
+      port: PORT,
+      model: MODEL,
+      usage: 'POST /v1/chat/completions with Authorization: Bearer <token>',
+      docs: 'OpenAI-compatible: /v1/models, /v1/chat/completions, /v1/responses, /v1/messages',
+    }));
+  }
+
+  // everything else requires the token
   if (TOKEN && auth !== `Bearer ${TOKEN}` && auth !== TOKEN) {
     res.writeHead(401, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ error: 'unauthorized' }));
-  }
-
-  if (req.method === 'GET' && (req.url === '/health' || req.url === '/')) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ healthy: true, service: 'opencode-farm', port: PORT }));
   }
 
   if (req.method === 'GET' && req.url.startsWith('/v1/models')) {
