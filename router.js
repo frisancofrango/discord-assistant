@@ -1,9 +1,9 @@
-// Router: /ide/* -> code-server (8080), everything else -> opencode proxy (4010)
+// Router: /v1* + /health -> opencode proxy (4010), everything else -> VS Code IDE (8080)
 const http = require('http');
 
 const TARGETS = [
-  { match: (url) => url.startsWith('/ide'), host: '127.0.0.1', port: 8080 },
-  { match: () => true, host: '127.0.0.1', port: 4010 },
+  { match: (url) => url.startsWith('/v1') || url === '/health', host: '127.0.0.1', port: 4010 },
+  { match: () => true, host: '127.0.0.1', port: 8080 },
 ];
 
 const server = http.createServer((req, res) => {
@@ -23,4 +23,4 @@ const server = http.createServer((req, res) => {
   req.pipe(proxy);
 });
 
-server.listen(80, '0.0.0.0', () => console.log('[router] on :80 -> /ide:8080, rest:4010'));
+server.listen(80, '0.0.0.0', () => console.log('[router] on :80 -> /v1:4010, rest:8080(IDE)'));

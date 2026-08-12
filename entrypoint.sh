@@ -12,7 +12,7 @@ echo "  opencode:  $(opencode --version 2>&1 | head -1)"
 echo "  newman:    $(newman --version 2>&1 | head -1)"
 echo "  postman:   $(postman --version 2>&1 | head -1 || echo unavailable)"
 echo "  code-server: $(code-server --version 2>&1 | head -1 || echo unavailable)"
-echo "[boot] IDE    -> https://<app>.fly.dev/ide/ (password from PASSWORD)"
+echo "[boot] IDE    -> https://<app>.fly.dev/ (password from PASSWORD)"
 echo "[boot] proxy  -> https://<app>.fly.dev/v1 (Bearer token)"
 echo "[boot] SSH    -> flyctl ssh console --app <app>"
 
@@ -20,8 +20,8 @@ echo "[boot] SSH    -> flyctl ssh console --app <app>"
 node /app/server.js &
 echo "[boot] proxy pid $! on :4010"
 
-# VS Code IDE on :8080 under /ide
-code-server --bind-addr 0.0.0.0:8080 --auth password --password "$PASSWORD" --prefix /ide --disable-telemetry &
+# VS Code IDE on :8080 (root path ??? router sends /v1 to proxy)
+code-server --bind-addr 0.0.0.0:8080 --auth password --disable-telemetry &
 echo "[boot] code-server pid $! on :8080"
 
 sleep 2
