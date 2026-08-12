@@ -1,4 +1,4 @@
-# Fly app config for the opencode free proxy
+# ALL-IN-ONE app: opencode free proxy (/) + VS Code IDE (/ide) + Postman CLI
 app = "discord-assistant-dc1vuw"
 primary_region = "gru"
 
@@ -7,16 +7,30 @@ primary_region = "gru"
 
 [env]
   OPENCODE_CONFIG_DIR = "/tmp/opencode-config"
-  OPENCODE_LLM_PROXY_HOST = "0.0.0.0"
   OPENCODE_LLM_PROXY_PORT = "4010"
   OPENCODE_LLM_PROXY_TOKEN = "change-me"
+  MODEL = "opencode/mimo-v2.5-free"
+  PASSWORD = "changeme"
+  CODE_SERVER_PORT = "8080"
 
+# proxy on the root path
 [http_service]
   internal_port = 4010
   force_https = true
   auto_stop_machines = false
   auto_start_machines = true
   min_machines_running = 1
+
+# VS Code IDE under /ide
+[[http_service]]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.handlers]
+    path = "/ide"
 
 [[vm]]
   size = "shared-cpu-1x"
