@@ -3,18 +3,16 @@
 rm -rf $OPENCODE_CONFIG_DIR
 mkdir -p $OPENCODE_CONFIG_DIR
 
-# opencode config: free model + llm-proxy plugin loaded by ABSOLUTE PATH
+# opencode config: free model
 cat > $OPENCODE_CONFIG_DIR/opencode.json <<EOF
 {
   "\$schema": "https://opencode.ai",
-  "model": "opencode/mimo-v2.5-free",
-  "plugin": ["/app/node_modules/opencode-llm-proxy/dist/llm-proxy.js"]
+  "model": "opencode/mimo-v2.5-free"
 }
 EOF
 
 echo "[boot] OPENCODE_CONFIG_DIR=$OPENCODE_CONFIG_DIR"
 ls -la $OPENCODE_CONFIG_DIR
-ls -la /app/node_modules/opencode-llm-proxy/dist/ 2>&1 | head -5
 
-# run opencode headless server on internal port 4000 (llm-proxy listens on 4010 externally)
-exec opencode serve --hostname 0.0.0.0 --port 4000
+# self-contained OpenAI-compatible server wrapping `opencode run`
+exec node /app/server.js
