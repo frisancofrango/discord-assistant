@@ -2,6 +2,9 @@
 // One Fly app = one fresh IP = one free bucket. No plugin dependency.
 const http = require('http');
 const { execFile } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 const PORT = process.env.OPENCODE_LLM_PROXY_PORT || 4010;
 const TOKEN = process.env.OPENCODE_LLM_PROXY_TOKEN || 'change-me';
@@ -16,14 +19,27 @@ function promptFromBody(body) {
 }
 
 function callOpencode(prompt, cb) {
+  // opencode run HANGS when stdout is a pipe — redirect to files (proven working)
+  const outFile = path.join(os.tmpdir(), `oc_out_${Date.now()}_${Math.random().toString(36).slice(2)}.log`);
+  const errFile = path.join(os.tmpdir(), `oc_err_${Date.now()}_${Math.random().toString(36).slice(2)}.log`);
+  const fdOut = fs.openSync(outFile, 'w');
+  const fdErr = fs.openSync(errFile, 'w');
   const args = ['run', '--model', MODEL, '--format', 'json', '--pure', prompt];
-  const child = execFile('opencode', args, {
+  const child = require('child_process').spawn('opencode', args, {
     env: { ...process.env },
-    timeout: 300000,
-    maxBuffer: 20 * 1024 * 1024,
-  }, (err, stdout) => {
-    // --format json emits JSON events per line; the final text is in a "text" event or part
-    if (err && !stdout) return cb(err);
+    stdio: ['ignore', fdOut, fdErr],
+  });
+  const timer = setTimeout(() => { child.kill('SIGKILL'); }, 300000);
+  child.on('error', (e) => { clearTimeout(timer); fs.closeSync(fdOut); fs.closeSync(fdErr); cb(e); });
+  child.on('exit', (code) => {
+    clearTimeout(timer);
+    fs.closeSync(fdOut); fs.closeSync(fdErr);
+    let stdout = '', stderr = '';
+    try { stdout = fs.readFileSync(outFile, 'utf8'); } catch {}
+    try { stderr = fs.readFileSync(errFile, 'utf8'); } catch {}
+    try { fs.unlinkSync(outFile); } catch {}
+    try { fs.unlinkSync(errFile); } catch {}
+    if (code !== 0 && !stdout) return cb(new Error(`opencode exit ${code}: ${stderr.slice(0,300)}`));
     cb(null, stdout || '');
   });
   return child;
