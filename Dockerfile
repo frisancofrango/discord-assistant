@@ -8,8 +8,8 @@ RUN npm install -g opencode-ai || npm install -g opencode-ai@latest
 RUN npm install -g newman
 RUN npm install -g postman-cli || true
 
-# ── build tools FIRST (curl needed below) ──
-RUN apt-get update -qq && apt-get install -y -qq curl jq git python3 > /dev/null 2>&1 || true
+# ── build tools FIRST (curl + g++ needed below) ──
+RUN apt-get update -qq && apt-get install -y -qq curl jq git python3 build-essential g++ make > /dev/null 2>&1 || true
 
 # ── code-server (VS Code in browser, under /ide) ──
 RUN curl -fsSL https://code-server.dev/install.sh | sh || npm install -g code-server || true
