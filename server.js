@@ -16,7 +16,7 @@ function promptFromBody(body) {
 }
 
 function callOpencode(prompt, cb) {
-  const args = ['run', '--model', MODEL, '--format', 'json', prompt];
+  const args = ['run', '--model', MODEL, '--format', 'json', '--pure', prompt];
   const child = execFile('opencode', args, {
     env: { ...process.env },
     timeout: 300000,
