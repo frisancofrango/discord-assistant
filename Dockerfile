@@ -1,9 +1,12 @@
 # opencode free farm — one Fly app = one fresh free bucket (IP + deviceId)
 FROM node:20-slim
 
-# opencode CLI + llm-proxy plugin
-RUN npm install -g opencode@1.18.16 || npm install -g opencode
+# opencode CLI (npm package is opencode-ai) + llm-proxy plugin
+RUN npm install -g opencode-ai || npm install -g opencode-ai@latest
 RUN npm install -g opencode-llm-proxy
+
+# let opencode resolve the plugin from global node_modules
+ENV NODE_PATH=/usr/local/lib/node_modules
 
 # fresh deviceId per boot (ephemeral dir, wiped in entrypoint)
 ENV OPENCODE_CONFIG_DIR=/tmp/opencode-config
