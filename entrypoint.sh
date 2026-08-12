@@ -20,11 +20,20 @@ echo "[boot] SSH    -> flyctl ssh console --app <app>"
 node /app/server.js &
 echo "[boot] proxy pid $! on :4010"
 
-# VS Code IDE on :8080 (root path ??? router sends /v1 to proxy)
-code-server --bind-addr 0.0.0.0:8080 --auth password --disable-telemetry &
+# VS Code IDE on :8080 (root path, router sends /v1 to proxy)
+# write config with PASSWORD from env (fly secret) ??? config wins over env for code-server
+rm -rf /root/.config/code-server
+mkdir -p /root/.config/code-server
+cat > /root/.config/code-server/config.yaml <<EOF
+bind-addr: 0.0.0.0:8080
+auth: password
+password: $PASSWORD
+cert: false
+EOF
+code-server --auth password --disable-telemetry &
 echo "[boot] code-server pid $! on :8080"
 
 sleep 2
 
-# router on :80 -> /ide:8080, rest:4010 (foreground, keeps machine alive)
+# router on :80 -> /v1:4010, rest:8080 (foreground, keeps machine alive)
 exec node /app/router.js
