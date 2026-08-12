@@ -1,0 +1,23 @@
+# Fly app config for the opencode free proxy
+app = "discord-assistant-dc1vuw"
+primary_region = "gru"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  OPENCODE_CONFIG_DIR = "/tmp/opencode-config"
+  OPENCODE_LLM_PROXY_HOST = "0.0.0.0"
+  OPENCODE_LLM_PROXY_PORT = "4010"
+  OPENCODE_LLM_PROXY_TOKEN = "change-me"
+
+[http_service]
+  internal_port = 4010
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
