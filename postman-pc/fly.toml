@@ -1,0 +1,21 @@
+# Cloud IDE PC on Fly — VS Code in browser + Postman + opencode
+app = "postman-pc"
+primary_region = "gru"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PASSWORD = "changeme"
+  POSTMAN_CLI_USE_UPDATE_NOTIFIER = "false"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "2gb"
